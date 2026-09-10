@@ -1,0 +1,40 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model LearningSession {
+  id             String         @id @default(uuid())
+  title          String?
+  description    String?        @db.Text
+  subject        String
+  topic          String
+  transcript     String         @db.Text
+  notes          String?        @db.Text
+  geminiAnalysis Json?
+  gptAnalysis    Json?
+  status         String         @default("DRAFT")
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  tasks          LearningTask[]
+}
+
+model LearningTask {
+  id                    String          @id @default(uuid())
+  sessionId             String
+  session               LearningSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  title                 String
+  description           String?         @db.Text
+  durationMinutes       Int             @default(30)
+  priority              String          @default("MEDIUM")
+  dueDate               DateTime?
+  status                String          @default("PENDING")
+  googleTaskId          String?
+  googleCalendarEventId String?
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+}
